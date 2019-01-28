@@ -85,12 +85,22 @@ class Dealer:
     def hit(self, shoe):
         card = shoe.deal()
         self.hand.add_card(card)
+        bj = self.exp_val(shoe)
         extra = 'Stand' if self.hand.value > np.uint8(16) else 'Hit'
         if self.hand.is_bj():
             extra = 'BJ!' 
         if self.hand.is_busted():
             extra = 'Busted!'
-        print(self.hand.cards,self.hand.value,extra)
+        print(self.hand.cards,self.hand.value,extra,bj)
+    
+    def exp_val(self,shoe):
+        '''
+        expected value 
+        '''
+        #stub for BJ
+        if self.hand.cards.size == np.uint8(1):
+            if np.any(self.hand.value + shoe.CARDS == np.uint8(21)):
+                return('BJ prob: {}'.format(np.uint8(100)*np.sum(self.hand.value + shoe.CARDS == np.uint8(21))/np.uint8(13)))    
 
 class Player:
     pass

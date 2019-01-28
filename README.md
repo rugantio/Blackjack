@@ -1,2 +1,2 @@
-# Blackjack
-A Blackjack simulator in python built on numpy
+# blackjack
+A blackjack simulator in python3 built on numpy

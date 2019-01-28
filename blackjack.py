@@ -50,19 +50,25 @@ class Hand:
         Returns: (int) Value of the hand
         '''
         self.value = np.sum(self.cards)
+
+        #check for double aces
+        if np.array_equal(self.cards,np.array([11,11],dtype=np.uint8)):
+            self.cards = np.array([11,1],dtype=np.uint8)
+            self.value = np.uint(12)
+            return self.value
+
         if self.is_busted():
             if np.any(self.cards == np.uint8(11)):
-                self.cards = self.soft_to_hard(self.cards)
+                self.soft_to_hard()
                 self.value = np.sum(self.cards)
-        return self.value
-
-    @staticmethod    
-    def soft_to_hard(cards):
+       
+    def soft_to_hard(self):
         '''
         changes hand from soft to hard
         switch all aces value 11 with aces value 1
+        Returns: nothing, the modification is done in place!
         '''
-        return np.place(cards,cards==np.uint8(11),np.uint8(1))
+        np.place(self.cards,self.cards==np.uint8(11),np.uint8(1))
     
     def is_busted(self):
         return self.value > np.uint8(21)
@@ -85,23 +91,31 @@ class Dealer:
     def hit(self, shoe):
         card = shoe.deal()
         self.hand.add_card(card)
-        bj = self.exp_val(shoe)
+#        bj = self.exp_val(shoe)
         extra = 'Stand' if self.hand.value > np.uint8(16) else 'Hit'
         if self.hand.is_bj():
             extra = 'BJ!' 
         if self.hand.is_busted():
             extra = 'Busted!'
-        print(self.hand.cards,self.hand.value,extra,bj)
+        print(self.hand.cards,self.hand.value,extra)#,bj)
     
     def exp_val(self,shoe):
         '''
         expected value 
         '''
-        #stub for BJ
+        #statistical value for BJ
         if self.hand.cards.size == np.uint8(1):
-            if np.any(self.hand.value + shoe.CARDS == np.uint8(21)):
-                return('BJ prob: {}'.format(np.uint8(100)*np.sum(self.hand.value + shoe.CARDS == np.uint8(21))/np.uint8(13)))    
-
+            added = self.hand.value + shoe.CARDS
+            tot_cards = np.uint8(52)*shoe.decks
+            if np.any(added == np.uint8(21)):
+                return('BJ prob: {}'.format((np.uint8(100)*np.sum(added == np.uint8(21))*shoe.decks)/(tot_cards - np.uint8(1))))  
+            #real probability from the shoe
+            ###
+#            #for 21 - prob. numb < 17 and not BJ 
+#            if np.any(added < np.uint8(17)) and not self.hand.is_bj():
+#                np.uint8(21) - added
+#                
+                
 class Player:
     pass
 
@@ -120,4 +134,4 @@ if __name__ == "__main__":
     a = Game()
     for i in range(5):
         a.play()
-        print('END')
+        print('END\n')
